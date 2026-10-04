@@ -213,7 +213,8 @@ set(CORE_FRONT_END_SOURCE_FILES
     lower_c99.c lower_eh.c lower_il.c lower_init.c lower_name.c macro.c
     mem_manage.c modules.c ms_attrib.c overload.c pch.c pragma.c preproc.c
     scope_stk.c src_seq.c statements.c symbol_ref.c symbol_tbl.c sys_predef.c
-    target.c templates.c trans_copy.c trans_corresp.c trans_unit.c types.c)
+    target.c templates.c trans_copy.c trans_corresp.c trans_unit.c types.c
+    ivl.c)
 
 # Add newer additions here. This allows this CMake file to be used for older
 # versions of the front end via edg-cmake-ctl.
