@@ -33,6 +33,8 @@ error.c -- Error reporting routines.
 #endif /* RECORD_MACRO_INVOCATIONS */
 #endif /* !STANDALONE_UTILITY_PROGRAM */
 
+#include "ivl.h"
+
 /* Conditionally open the "edg" namespace. */
 BEGIN_EDG_NAMESPACE
 
@@ -3325,18 +3327,11 @@ STATIC_THREAD a_boolean
 			   detected.  Used to detect a loop in internal
 			   error processing. */
 
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 NORETURN void internal_error(a_const_char *error_message)
 /*
 An internal error has occurred.  Write the given message and abort.
 */
 {
-  char comm[1000]{};
-  sprintf(comm, "gdb --batch -ex \"thread apply all bt\" -p %d", getpid());
-  system(comm);
   /* Make sure that if one internal error leads to another, we abort
      the compilation instead of looping. */
   if (internal_error_loop) {
@@ -5758,6 +5753,7 @@ The message is formatted into text strings and is output.
     }  /* if */
   }  /* if */
   if (diag_should_be_issued) {
+    ivl_bt();
     /* Set up for use of the il_to_str routines. */
     set_up_output_control_block();
     /* Allocate the diagnostic buffer if this is our first time. */
