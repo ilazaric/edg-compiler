@@ -1,6 +1,9 @@
 #ifndef IVL_H
 #define IVL_H 1
 
+#include "basics.h" // f_debug
+#include "lexical.h" // pos_curr_token, db_source_position, ...
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
