@@ -5545,7 +5545,6 @@ static void template_for_statement(void)
   a_token_sequence_number    expr_tok_seq_number;
   a_range_based_for_loop_ptr rbflp = NULL;
   a_scope_pointers_block     iterator_pointers_block, rbf_pointers_block;
-  a_boolean                  use_await = FALSE;
   a_label_ptr                break_label = NULL;
 
   db_enter(3, "template_for_statement");
@@ -5603,7 +5602,7 @@ static void template_for_statement(void)
        of the IL). */
     rbflp->initialization = flip->initialization;
     rbflp->range_based_for_scope = flip->for_init_scope;
-    rbflp->use_await = use_await;
+    rbflp->use_await = FALSE;
     if (rbflp->initialization != NULL) {
       /* We scanned an initialization statement. */
       a_source_position pos;
