@@ -1622,6 +1622,7 @@ should be set to TRUE.
           head_ptr = &ssp->variant.for_loop.statement;
         }  /* if */
         break;
+      case stmk_template_for:
       case stmk_range_based_for:
         check_assertion(!sssep->for_init);
         head_ptr = &ssp->variant.range_based_for_loop.statement;
@@ -5536,6 +5537,224 @@ STATIC_THREAD a_boolean
 			   statement in a range-based for statement has already
 			   been diagnosed. */
 
+static void template_for_statement(void)
+{
+  a_statement_ptr            sp;
+  a_boolean                  assume_loop_reachable;
+  a_boolean                  is_condition_decl = FALSE;
+  a_boolean                  need_c99_stmt_scope = FALSE;
+  a_source_position          stmt_pos, range_pos;
+  a_token_sequence_number    expr_tok_seq_number;
+  a_range_based_for_loop_ptr rbflp = NULL;
+  a_scope_pointers_block     iterator_pointers_block, rbf_pointers_block;
+  a_boolean                  use_await = FALSE;
+  a_label_ptr                break_label = NULL;
+
+  db_enter(3, "template_for_statement");
+  check_assertion_str(curr_token == tok_template,
+                      "template_for_statement: expected template");
+  get_token();
+  fprintf(stderr, "IVL: template for start\n");
+
+  stmt_pos = pos_curr_token;
+  assume_loop_reachable = curr_reachability.reachable ||
+                          curr_reachability.suppress_unreachable_warning;
+  /* In C99, the statement itself has an associated scope.  Microsoft C also
+     implements this starting with version 18.00. */
+  need_c99_stmt_scope = c99_mode || (C_mode() && microsoft_mode &&
+                                     microsoft_version >= 1800);
+  if (need_c99_stmt_scope) push_statement_scope();
+  /* Allocate the for statement. */
+  sp = add_statement(stmk_for, /*compiler_generated=*/FALSE);
+  
+  stmt_update_source_sequence_list(sp);
+  /* Do processing required for any pragmas that are bound to the current
+     statement. */
+  process_curr_construct_pragmas((a_symbol_ptr)NULL, sp);
+  /* Push an entry on the structured statement stack. */
+  push_stmt_stack(ssk_for, sp, (an_object_lifetime_ptr)NULL);
+  check_assertion_str(curr_token == tok_for,
+                      "template_for_statement: expected for");
+  /* Consume the "for" token. */
+  (void)get_token();
+  /* Check for and skip the opening parenthesis. */
+  (void)required_token(tok_lparen, ec_exp_lparen);
+  add_stop_token(tok_rparen);
+  if (find_for_loop_separator() == tok_semicolon) {
+    /* This code is for "plain old" for statements (i.e., C, pre-C++11, UPC C)
+       as well as C++20 range-based for statements that can have an optional
+       init-statement.  Scan an initializing expression or declaration if it is
+       present.  It will be added to the correct place in the stmk_for entry.
+       (Note: find_for_loop_separator uses the grammar disambiguation code,
+       which currently cannot be used in C mode.) */
+    add_stop_token(tok_semicolon);
+    for_init_statement(&iterator_pointers_block);
+    remove_stop_token(tok_semicolon);
+  }  /* if */
+
+  check_assertion_str(find_for_loop_separator() == tok_colon, "???");
+  {
+    /* Now that it is known that we're scanning a range-based for statement,
+       we need to go back and fix up the current statement and statement stack
+       to reflect this. */
+    a_for_loop_ptr  flip = sp->variant.for_loop.extra_info;
+    if (!range_based_for_enabled) {
+      an_error_severity  sev = clang_mode ? es_warning : es_error;
+      pos_diagnostic(sev, ec_range_based_for_nonstandard, &pos_curr_token);
+    }  /* if */
+    struct_stmt_stack[depth_stmt_stack].kind = ssk_range_based_for;
+    scope_stack_top().is_for_init_block = FALSE;
+    set_statement_kind(sp, (a_statement_kind)stmk_template_for);
+    rbflp = sp->variant.range_based_for_loop.extra_info;
+    /* Copy any initialized items from flip to rbflp (flip will not be part
+       of the IL). */
+    rbflp->initialization = flip->initialization;
+    rbflp->range_based_for_scope = flip->for_init_scope;
+    rbflp->use_await = use_await;
+    if (rbflp->initialization != NULL) {
+      /* We scanned an initialization statement. */
+      a_source_position pos;
+      /* If the initialization statement has been turned into a block, use
+         the position information from the first statement in the block. */
+      if (rbflp->initialization->kind == (a_statement_kind)stmk_block &&
+          rbflp->initialization->position.seq == 0) {
+        pos = rbflp->initialization->variant.block.statements->position;
+      } else {
+        pos = rbflp->initialization->position;
+      }  /* if */
+      if (!init_statement_allowed_in_range_based_for) {
+        pos_error(ec_init_stmt_in_range_for_nonstandard, &pos);
+      } else if (gpp_mode && !cpp20_mode) {
+        /* GNU 9.0 and later allow an init-statement in pre-C++20 modes with a
+           warning. */
+        if (!already_diagnosed_init_in_range_for && !in_system_header()) {
+          pos_warning(ec_init_stmt_in_range_for_nonstandard, &pos);
+          already_diagnosed_init_in_range_for = TRUE;
+        }  /* if */
+      }  /* if */
+    }  /* if */
+  }
+  
+  {
+    a_control_flow_descr_ptr  cfdp;
+    /* A range-based-for has two scopes, both of which are pushed in
+       preparation for scanning the for-range-declaration (if an init-statement
+       was present, one of the scopes has already been pushed). */
+    a_decl_parse_state dps;
+    check_assertion(rbflp != NULL);
+    if (rbflp->range_based_for_scope == NULL) {
+      /* No optional initialization statement was present, so no scope has
+         been created for this statement yet; create the outermost scope. */
+      rbflp->range_based_for_scope =
+                             start_fabricated_block_scope_for_enhanced_for(
+                                                     &iterator_pointers_block);
+    }  /* if */
+    /* Push the inner scope before scanning the declaration. */
+    rbflp->iterator_scope = start_fabricated_block_scope_for_enhanced_for(
+                                                          &rbf_pointers_block);
+    /* Add a control flow entry to represent the range-based-for block. */
+    cfdp = alloc_control_flow_descr((a_control_flow_descr_kind)cfdk_block);
+    cfdp->source_pos = pos_curr_token;
+    cfdp->variant.block.object_lifetime = curr_object_lifetime;
+    add_to_control_flow_descr_list(cfdp);
+    add_stop_token(tok_colon);
+    /* Scan the for-range-declaration (in the iterator_scope). */
+    for_range_declaration(&dps);
+    if (dps.sym != NULL && symbol_is(dps.sym, sk_variable)) {
+      rbflp->iterator = dps.sym->variant.variable.ptr;
+      if (rbflp->iterator != NULL) {
+        rbflp->iterator->is_enhanced_for_iterator = TRUE;
+      }  /* if */
+    }  /* if */
+    /* Pop scope to get back to the scope where the expression needs to
+       be scanned.  The scope will be re-activated after the expression
+       is scanned. */
+    pop_block_scope(/*is_final_pop=*/FALSE);
+    (void)required_token(tok_colon, ec_exp_colon);
+    remove_stop_token(tok_colon);
+    /* Scan the expression or braced-init-list. */
+    expr_tok_seq_number = curr_token_sequence_number;
+    scan_range_based_for_expression(sp, &range_pos);
+    /* Perform the semantic checks and build the IL. */
+    check_range_based_for_statement(sp,
+                                    &range_pos,
+                                    expr_tok_seq_number,
+                                    &rbf_pointers_block);
+    /* Return to the iterator scope for the dependent statement. */
+    push_block_reactivation_scope(rbflp->iterator_scope,
+                                  &rbf_pointers_block);
+    if (dps.is_struct_binding_decl) {
+      define_struct_bindings(&dps);
+    }  /* if */
+  }  /* if */
+  /* Check for and skip the closing parenthesis. */
+  (void)required_token(tok_rparen, ec_exp_rparen);
+  remove_stop_token(tok_rparen);
+  /* Scan the dependent statement. */
+  dependent_statement();
+  if (!assume_loop_reachable) warn_if_loop_has_no_labels(&stmt_pos);
+  /* Define the "continue" label, if it is needed. */
+  define_continue_label();
+  /* End the condition block, if necessary. */
+  if (is_condition_decl) finish_condition_block();
+  /* If there is a break label, create its associated "definition" (statement)
+     at this point, to ensure that the object lifetime associated with the
+     label is the "for" loop scope and not the init-statement scope (which
+     will be cleaned up after the "break" is executed).  Something like this:
+       struct D { D(); ~D(); operator bool(); };
+       void g() {
+         for (D d0; D d1;) {
+           D d2;
+           break;
+         }
+       }
+     is essentially equivalent to:
+       { D d0;
+         for (; D d1;) {
+           D d2;
+           goto break_label;  // Destroys d2 and d1, but not d0.
+         }
+         break_label:;
+         // Cleanup of d0 happens here.
+       }
+  */
+  { a_struct_stmt_stack_entry_ptr  sssep = &struct_stmt_stack_top();
+    break_label = sssep->break_label;
+    if (break_label != NULL) {
+      a_control_flow_descr_ptr  break_statements = sssep->break_statements;
+      define_implicit_label(break_label, break_statements,
+                            /*add_to_stmt_list=*/FALSE);
+      sssep->break_label = NULL;
+    }  /* if */
+  }
+
+  {
+    /* End the control flow block. */
+    add_to_control_flow_descr_list(
+       alloc_control_flow_descr((a_control_flow_descr_kind)cfdk_end_of_block));
+    /* Pop the scopes that have been pushed. */
+    finish_block_scope_for_enhanced_for();
+    finish_block_scope_for_enhanced_for();
+  }
+  
+  /* Pop the structured statement stack. */
+  pop_stmt_stack();
+  if (break_label != NULL) {
+    set_reachable(curr_reachability);
+    add_statement_list(break_label->exec_stmt, /*reachable=*/TRUE);
+  }  /* if */
+  /* If a label appeared in the context of the statement that was just
+     terminated, it may be appropriate to push a new object lifetime for
+     the scope being resumed. */
+  reset_curr_block_object_lifetime(sp);
+#if EXTRA_SOURCE_POSITIONS_IN_IL
+  sp->end_position = curr_construct_end_position;
+#endif /* EXTRA_SOURCE_POSITIONS_IN_IL */
+  /* Pop a scope in C99 mode. */
+  if (need_c99_stmt_scope) pop_statement_scope();
+  fprintf(stderr, "IVL: template for end\n");
+  db_exit();
+}  /* for_statement */
 
 static void for_statement(void)
 /*
@@ -5583,8 +5802,6 @@ The affinity can be an expression or the keyword "continue".
   a_label_ptr                break_label = NULL;
 
   db_enter(3, "for_statement");
-
-  if (curr_token == tok_template) (void)get_token();
 
   stmt_pos = pos_curr_token;
   assume_loop_reachable = curr_reachability.reachable ||
@@ -7852,9 +8069,9 @@ rescan_statement:
       if (!strict_ansi_mode) can_appear_in_constexpr_body = TRUE;
       break;
     case tok_template:
-      // template_for_statement();
       /* Template for statement. */
-      for_statement();
+      template_for_statement();
+      /* for_statement(); */
       break;
     case tok_if:
       /* If statement. */
