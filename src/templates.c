@@ -45,6 +45,7 @@ templates.c -- Support for C++ templates.
 #include "exprutil.h"
 #endif /* ifdef lint */
 
+#include "ivl.h"
 
 /* Conditionally open the "edg" namespace. */
 BEGIN_EDG_NAMESPACE
@@ -7343,6 +7344,8 @@ cases).
 #endif /* TEMPLATE_INSTANTIATIONS_IN_SOURCE_SEQUENCE_LISTS */
 #endif /* GENERATE_SOURCE_SEQUENCE_LISTS */
 
+  ivl_where();
+
   db_enter(3, "instantiate_template_function_full");
   template_sym = tip->template_sym;
   tssp = template_supplement_for_symbol(template_sym);
@@ -7630,6 +7633,8 @@ Instantiate the body of the template function associated with tip.
 */
 {
   a_routine_ptr routine = tip->instance_sym->variant.routine.ptr;
+
+  ivl_where();
 
 #if GNU_FUNCTION_MULTIVERSIONING
   /* For a GNU multiversion target-versioned function, instantiate all of the
@@ -38517,6 +38522,8 @@ data member specified by tip.
   a_source_position saved_curr_construct_end_position;
 #endif /* EXTRA_SOURCE_POSITIONS_IN_IL */
 
+  ivl_where();
+
 #if DEBUG
   output_debug_info = db_sym_trace("instantiations", tip->instance_sym);
   if (output_debug_info) {
@@ -40842,6 +40849,8 @@ that might be required.
 */
 {
   a_template_instance_ptr	tip;
+
+  ivl_where();
 
   for (tip = instantiations_required;
        tip != NULL;
