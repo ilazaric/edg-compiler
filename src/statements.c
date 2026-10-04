@@ -35,6 +35,7 @@ statements.c -- Scanning of statements.
 #include "macro.h"
 #include "func_def.h"
 
+#include "ivl.h"
 /* Conditionally open the "edg" namespace. */
 BEGIN_EDG_NAMESPACE
 
@@ -5547,6 +5548,9 @@ static void template_for_statement(void)
   a_scope_pointers_block     iterator_pointers_block, rbf_pointers_block;
   a_label_ptr                break_label = NULL;
 
+  // TODO: db_tokens() print
+  ivl_where();
+
   db_enter(3, "template_for_statement");
   check_assertion_str(curr_token == tok_template,
                       "template_for_statement: expected template");
@@ -5590,10 +5594,6 @@ static void template_for_statement(void)
        we need to go back and fix up the current statement and statement stack
        to reflect this. */
     a_for_loop_ptr  flip = sp->variant.for_loop.extra_info;
-    if (!range_based_for_enabled) {
-      an_error_severity  sev = clang_mode ? es_warning : es_error;
-      pos_diagnostic(sev, ec_range_based_for_nonstandard, &pos_curr_token);
-    }  /* if */
     struct_stmt_stack[depth_stmt_stack].kind = ssk_range_based_for;
     scope_stack_top().is_for_init_block = FALSE;
     set_statement_kind(sp, (a_statement_kind)stmk_template_for);
@@ -5656,7 +5656,11 @@ static void template_for_statement(void)
     remove_stop_token(tok_colon);
     /* Scan the expression or braced-init-list. */
     expr_tok_seq_number = curr_token_sequence_number;
-    scan_range_based_for_expression(sp, &range_pos);
+    if (curr_token == tok_lbrace) {
+      internal_error("TODO: go through parse_braced_init_list(false)");
+    } else {
+      scan_range_based_for_expression(sp, &range_pos);
+    }
     /* Perform the semantic checks and build the IL. */
     check_range_based_for_statement(sp,
                                     &range_pos,
@@ -5779,6 +5783,29 @@ The affinity can be an expression or the keyword "continue".
   a_boolean                  use_await = FALSE;
   a_label_ptr                break_label = NULL;
 
+  ivl_where();
+  // ivl_bt();
+
+  /* fprintf(f_debug, "IVL: %s: ", __func__); */
+  /* db_source_position(&pos_curr_token); */
+  /* fprintf(f_debug, "\n"); */
+  
+  // (void)curr_lexical_state_cache();
+  if (0) {
+  if (!curr_lexical_state_stack_entry) {
+    fprintf(f_debug, "(no curr_lexical_state_stack_entry)\n");
+  } else if (!curr_lexical_state_stack_entry->cache.has_value()) {
+    fprintf(f_debug, "(no cache)\n");
+  } else {
+    auto ptr = curr_lexical_state_cache();
+    fprintf(f_debug, "cache:\n");
+    db_tokens(ptr);
+  }
+  fprintf(f_debug, "db_stop_tokens:\n");
+  db_stop_tokens();
+  fprintf(f_debug, "\n");
+  }
+  
   db_enter(3, "for_statement");
 
   stmt_pos = pos_curr_token;
