@@ -5541,7 +5541,6 @@ static void template_for_statement(void)
 {
   a_statement_ptr            sp;
   a_boolean                  assume_loop_reachable;
-  a_boolean                  is_condition_decl = FALSE;
   a_source_position          stmt_pos, range_pos;
   a_token_sequence_number    expr_tok_seq_number;
   a_range_based_for_loop_ptr rbflp = NULL;
@@ -5689,8 +5688,6 @@ static void template_for_statement(void)
   if (!assume_loop_reachable) warn_if_loop_has_no_labels(&stmt_pos);
   /* Define the "continue" label, if it is needed. */
   define_continue_label();
-  /* End the condition block, if necessary. */
-  if (is_condition_decl) finish_condition_block();
   /* If there is a break label, create its associated "definition" (statement)
      at this point, to ensure that the object lifetime associated with the
      label is the "for" loop scope and not the init-statement scope (which
