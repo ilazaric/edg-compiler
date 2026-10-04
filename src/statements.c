@@ -5614,16 +5614,6 @@ static void template_for_statement(void)
       } else {
         pos = rbflp->initialization->position;
       }  /* if */
-      if (!init_statement_allowed_in_range_based_for) {
-        pos_error(ec_init_stmt_in_range_for_nonstandard, &pos);
-      } else if (gpp_mode && !cpp20_mode) {
-        /* GNU 9.0 and later allow an init-statement in pre-C++20 modes with a
-           warning. */
-        if (!already_diagnosed_init_in_range_for && !in_system_header()) {
-          pos_warning(ec_init_stmt_in_range_for_nonstandard, &pos);
-          already_diagnosed_init_in_range_for = TRUE;
-        }  /* if */
-      }  /* if */
     }  /* if */
   }
   
