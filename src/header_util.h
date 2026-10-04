@@ -16,6 +16,16 @@ to be free from dependence on undefined entities in the front end.
 #ifndef EDG_HEADER_UTIL_H
 #define EDG_HEADER_UTIL_H 1
 
+#ifndef BASICS_H
+#include "basics.h"
+#endif /* ifndef BASICS_H */
+#ifndef HOST_ENVIR_H
+#include "host_envir.h"
+#endif /* ifndef HOST_ENVIR_H */
+#ifndef CHECKING_H
+#include "checking.h"
+#endif /* ifndef CHECKING_H */
+
 /* Conditionally open the "edg" namespace. */
 BEGIN_EDG_NAMESPACE
 

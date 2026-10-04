@@ -385,12 +385,6 @@ extern void check_expected_errors(void);
     record_expected_error(__FILE__, __LINE__, __EDG_func__, string,          \
                           (char *)NULL);\
   }
-/* Macros that are the same as above except that two strings are provided.
-   This is simply done to make it easier to use long strings as arguments. */
-/*lint -emacro(774 506, check_assertion_str2)*/
-#define check_assertion_str2(test, string1, string2)          \
-  if (!(test))                                                \
-    assertion_failed(__FILE__, __LINE__, __EDG_func__, string1, string2)
 #define check_assertion_or_expect_error_str2(test, string1, string2)         \
   if (/*lint --e(774)*/!(test) && !is_at_least_one_error()) {                \
     record_expected_error(__FILE__, __LINE__, __EDG_func__, string1, string2);\
