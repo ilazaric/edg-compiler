@@ -5584,6 +5584,8 @@ The affinity can be an expression or the keyword "continue".
 
   db_enter(3, "for_statement");
 
+  if (curr_token == tok_template) (void)get_token();
+
   stmt_pos = pos_curr_token;
   assume_loop_reachable = curr_reachability.reachable ||
                           curr_reachability.suppress_unreachable_warning;
@@ -7848,6 +7850,11 @@ rescan_statement:
                                /*is_catch_clause=*/FALSE,
                                /*is_statement_expr=*/FALSE);
       if (!strict_ansi_mode) can_appear_in_constexpr_body = TRUE;
+      break;
+    case tok_template:
+      // template_for_statement();
+      /* Template for statement. */
+      for_statement();
       break;
     case tok_if:
       /* If statement. */
