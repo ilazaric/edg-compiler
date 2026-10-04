@@ -4449,6 +4449,7 @@ default mode (e.g., exception handling).
     embed_enabled = TRUE;
     struct_binding_packs_enabled = TRUE;
     pack_indexing_enabled = TRUE;
+    template_for_enabled = TRUE;
   }  /* if */
   /* Disable "false" as a null pointer constant in C++11 mode (as per Core
      issue 903). */
@@ -13493,6 +13494,7 @@ variables declared in cmd_line.h.
   variable_templates_enabled = FALSE;
   constexpr_if_enabled = FALSE;
   if_consteval_enabled = FALSE;
+  template_for_enabled = FALSE;
   explicit_this_param_enabled = FALSE;
   alignas_enabled = FALSE;
   alignof_enabled = FALSE;

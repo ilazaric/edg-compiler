@@ -1858,6 +1858,10 @@ EXTERN_THREAD a_boolean
 		if_consteval_enabled;
 			/* TRUE if C++23 "if consteval" is enabled. */
 
+EXTERN_THREAD a_boolean
+		template_for_enabled;
+			/* TRUE if C++26 "template for" is enabled. */
+
 
 #if MICROSOFT_EXTENSIONS_ALLOWED || GNU_X86_ATTRIBUTES_ALLOWED
 EXTERN_THREAD a_calling_convention

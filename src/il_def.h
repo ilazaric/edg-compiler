@@ -15804,6 +15804,7 @@ enum a_statement_kind : a_byte {
   stmk_expr,		/* Evaluate expression, throw away its value. */
   stmk_if,		/* if-then-else. */
   stmk_constexpr_if,	/* C++17 constexpr if-then-else. */
+  stmk_template_for,	/* C++26 "template for" statement. */
   stmk_if_consteval,	/* C++23 "if consteval" statement. */
   stmk_if_not_consteval,
 			/* C++23 "if not consteval" (or "if !consteval")
