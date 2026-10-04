@@ -2932,6 +2932,7 @@ Dump a statement kind, for debug purposes.
     case stmk_empty:            s = "empty";             break;
     case stmk_expr:             s = "expr";              break;
     case stmk_if:               s = "if";                break;
+    case stmk_template_for:     s = "template for";      break;
     case stmk_if_consteval:     s = "if consteval";      break;
     case stmk_if_not_consteval: s = "if not consteval";  break;
     case stmk_constexpr_if:     s = "constexpr if";      break;
