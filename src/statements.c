@@ -5542,7 +5542,6 @@ static void template_for_statement(void)
   a_statement_ptr            sp;
   a_boolean                  assume_loop_reachable;
   a_boolean                  is_condition_decl = FALSE;
-  a_boolean                  need_c99_stmt_scope = FALSE;
   a_source_position          stmt_pos, range_pos;
   a_token_sequence_number    expr_tok_seq_number;
   a_range_based_for_loop_ptr rbflp = NULL;
@@ -5559,11 +5558,6 @@ static void template_for_statement(void)
   stmt_pos = pos_curr_token;
   assume_loop_reachable = curr_reachability.reachable ||
                           curr_reachability.suppress_unreachable_warning;
-  /* In C99, the statement itself has an associated scope.  Microsoft C also
-     implements this starting with version 18.00. */
-  need_c99_stmt_scope = c99_mode || (C_mode() && microsoft_mode &&
-                                     microsoft_version >= 1800);
-  if (need_c99_stmt_scope) push_statement_scope();
   /* Allocate the for statement. */
   sp = add_statement(stmk_for, /*compiler_generated=*/FALSE);
   
@@ -5750,8 +5744,6 @@ static void template_for_statement(void)
 #if EXTRA_SOURCE_POSITIONS_IN_IL
   sp->end_position = curr_construct_end_position;
 #endif /* EXTRA_SOURCE_POSITIONS_IN_IL */
-  /* Pop a scope in C99 mode. */
-  if (need_c99_stmt_scope) pop_statement_scope();
   fprintf(stderr, "IVL: template for end\n");
   db_exit();
 }  /* for_statement */
