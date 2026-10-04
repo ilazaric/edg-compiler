@@ -4145,6 +4145,7 @@ fields to default values.
       flip->affinity = NULL;
 #endif /* UPC_EXTENSIONS_ALLOWED */
       break;
+    case stmk_template_for:
     case stmk_range_based_for:
       sp->variant.range_based_for_loop.statement = NULL;
       sp->variant.range_based_for_loop.extra_info = rbflp =

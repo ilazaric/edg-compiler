@@ -2327,6 +2327,7 @@ do_set_proper_definition_needed_flag:
             walk_ptr(eptr->variant.for_loop.statement, a_statement_ptr,
                      iek_statement);
             break;
+          case stmk_template_for:
           case stmk_range_based_for:
             walk_ptr(eptr->variant.range_based_for_loop.extra_info,
                      a_range_based_for_loop_ptr, iek_range_based_for_loop);

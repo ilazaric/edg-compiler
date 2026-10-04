@@ -20286,6 +20286,7 @@ Do IL lowering of the indicated statement and everything under it.
       case stmk_for:
         lower_for_statement(statement);
         break;
+      case stmk_template_for:
       case stmk_range_based_for:
         lower_range_based_for_statement(statement);
         break;
