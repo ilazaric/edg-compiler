@@ -5729,11 +5729,26 @@ static void template_for_statement(void)
 
 static void ivl_statement(void) {
   ivl_where();
-  cannot_bind_to_curr_construct();
-  check_assertion_str(curr_token == tok_ivl, "ivl_statement: expected `ivl`");
-  (void)get_token();
-  check_assertion_str(curr_token == tok_semicolon, "ivl_statement: expected `;`");
-  (void)get_token();
+  (void)required_token(tok_ivl, ec_exp_ivl);
+  if (curr_token == tok_semicolon) {
+    (void)get_token();
+    cannot_bind_to_curr_construct();
+    return;
+  }
+  if (curr_token != tok_identifier) {
+    pos_error(ec_exp_identifier, &pos_curr_token);
+    discard_curr_construct_pragmas();
+    return;
+  }
+  auto id = il_string_for_curr_token();
+  if (strcmp(id, "noop") == 0) {
+    empty_statement(TRUE);
+    (void)get_token();
+    (void)required_token(tok_semicolon, ec_exp_semicolon);
+    return;
+  }
+  pos_error(ec_undefined_identifier, &pos_curr_token);
+  discard_curr_construct_pragmas();
 }
 
 static void for_statement(void)
