@@ -1,3 +1,5 @@
+#include "ivl.h"
+
 #if !STANDALONE_IL_DISPLAY
 #include "fe_common.h"
 
@@ -10,10 +12,27 @@
 #include <stdlib.h> // system
 
 #if !STANDALONE_IL_DISPLAY
+static int indent = 0;
+
 void ivl_where_impl(const char* func) {
   fprintf(f_debug, "IVL: %s: ", func);
   db_source_position(&pos_curr_token);
   fprintf(f_debug, "\n");
+}
+
+void ivl_indent() {
+  for (int i = 0; i < indent; ++i) fprintf(f_debug, " ");
+  indent += 2;
+}
+
+void ivl_deindent() {
+  indent -= 2;
+  for (int i = 0; i < indent; ++i) fprintf(f_debug, " ");
+}
+
+ivl_deindenter::~ivl_deindenter() {
+  ivl_deindent();
+  ivl_where_impl(ptr);
 }
 #endif // !STANDALONE_IL_DISPLAY
 

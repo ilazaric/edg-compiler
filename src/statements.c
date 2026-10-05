@@ -4212,6 +4212,8 @@ The syntax is:
   a_source_position          expr_pos;
   a_reachability_summary     saved_reachability = curr_reachability;
 
+  ivl_where();
+
   db_enter(3, "if_statement");
 
   check_for_unreachable_code();
@@ -8461,6 +8463,8 @@ is being parsed within the context of the __extension__ keyword.
                                            source_sequence_entries_disallowed;
 #endif /* GENERATE_SOURCE_SEQUENCE_LISTS */
   a_source_position          lbrace_pos;
+
+  ivl_where();
 
   db_enter (3, "compound_statement");
 

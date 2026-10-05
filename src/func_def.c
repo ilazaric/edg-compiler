@@ -36,6 +36,8 @@ func_def.c -- Processing for function definitions (both user supplied and
 #include "statements.h"
 #include "layout.h"
 
+#include "ivl.h"
+
 /* Conditionally open the "edg" namespace. */
 BEGIN_EDG_NAMESPACE
 
@@ -1406,6 +1408,8 @@ of lambda expressions.
   a_pack_alignment_state         saved_pack_alignment_state;
   a_source_position              body_pos;
   a_source_position              lbrace_pos;
+
+  ivl_where();
 
   db_enter(3, "scan_function_body");
   body_pos = pos_curr_token;
