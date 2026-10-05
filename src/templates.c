@@ -7585,7 +7585,7 @@ cases).
   }  /* if */
   /* Reactivate the tokens comprising the function body and scan them. */
   ivl_where_old();
-  rescan_reusable_cache(tcp->tokens);
+  rescan_reusable_cache(tcp->tokens); // IVL: !!!important!!!
   ivl_where_old();
   scan_function_body(rout_ptr, func_info_ptr,
                      (SFB_NEW_STRUCT_STMT_STACK_REQUIRED |

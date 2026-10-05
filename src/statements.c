@@ -5557,7 +5557,6 @@ static void template_for_statement(void)
   check_assertion_str(curr_token == tok_template,
                       "template_for_statement: expected template");
   get_token();
-  fprintf(stderr, "IVL: template for start\n");
 
   stmt_pos = pos_curr_token;
   assume_loop_reachable = curr_reachability.reachable ||
@@ -5648,11 +5647,10 @@ static void template_for_statement(void)
     remove_stop_token(tok_colon);
     /* Scan the expression or braced-init-list. */
     expr_tok_seq_number = curr_token_sequence_number;
-    if (curr_token == tok_lbrace) {
-      internal_error("TODO: go through parse_braced_init_list(false)");
-    } else {
-      scan_range_based_for_expression(sp, &range_pos);
-    }
+    // TODO: we doing enumerating expansions statements for now, implement others
+    check_assertion(curr_token == tok_lbrace);
+    an_init_component_ptr alep = scan_expr_or_braced_init_list(TRUE, TRUE); // parse_braced_init_list(false);
+    internal_error("TODO: the rest");
     /* Perform the semantic checks and build the IL. */
     check_range_based_for_statement(sp,
                                     &range_pos,
@@ -5717,7 +5715,7 @@ static void template_for_statement(void)
   pop_stmt_stack();
   if (break_label != NULL) {
     set_reachable(curr_reachability);
-    add_statement_list(break_label->exec_stmt, /*reachable=*/TRUE);
+    // IVL TODO: add_statement_list(break_label->exec_stmt, /*reachable=*/TRUE);
   }  /* if */
   /* If a label appeared in the context of the statement that was just
      terminated, it may be appropriate to push a new object lifetime for
@@ -5726,7 +5724,6 @@ static void template_for_statement(void)
 #if EXTRA_SOURCE_POSITIONS_IN_IL
   sp->end_position = curr_construct_end_position;
 #endif /* EXTRA_SOURCE_POSITIONS_IN_IL */
-  fprintf(stderr, "IVL: template for end\n");
   db_exit();
 }  /* for_statement */
 
@@ -6126,6 +6123,7 @@ The affinity can be an expression or the keyword "continue".
       }  /* if */
     }  /* if */
   }  /* if */
+  // db_statements(sp);
   db_exit();
 }  /* for_statement */
 
@@ -8068,7 +8066,6 @@ rescan_statement:
     case tok_template:
       /* Template for statement. */
       template_for_statement();
-      /* for_statement(); */
       break;
     case tok_if:
       /* If statement. */
