@@ -14,10 +14,6 @@ interpret.h -- Interface to IL interpreter for constexpr functions
 #ifndef INTERPRET_H
 #define INTERPRET_H 1
 
-#ifndef BASICS_H
-#include "basics.h"
-#endif /* ifndef BASICS_H */
-
 /* Conditionally open the "edg" namespace. */
 BEGIN_EDG_NAMESPACE
 

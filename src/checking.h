@@ -14,10 +14,6 @@ checking.h -- Assertion checking fundamental declarations.
 #ifndef EDG_CHECKING_H
 #define EDG_CHECKING_H 1
 
-#ifndef BASICS_H
-#include "basics.h"
-#endif /* ifndef BASICS_H */
-
 /* Conditionally open the "edg" namespace. */
 BEGIN_EDG_NAMESPACE
 
