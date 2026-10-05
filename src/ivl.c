@@ -1,5 +1,7 @@
 #include "ivl.h"
 
+#include "fe_common.h"
+
 #include "basics.h" // f_debug
 #include "lexical.h" // pos_curr_token, db_source_position, ...
 
