@@ -1633,6 +1633,7 @@ EXTERN_CONSTINIT_ARRAY(an_opname_kind, opname_kind_for_token, tok_last + 1)
    onk_none,          /* tok_protected */
    onk_none,          /* tok_public */
    onk_none,          /* tok_template */
+   onk_none,          /* tok_ivl */
    onk_none,          /* tok_this */
    onk_none,          /* tok_throw */
    onk_none,          /* tok_try */

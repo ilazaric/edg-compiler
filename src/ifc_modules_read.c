@@ -28105,6 +28105,9 @@ Cache the given basic token into the given front end token cache.
     case ifc_ebts_template:
       cache_token(cache, tok_template);
       break;
+    case ifc_ebts_ivl:
+      cache_token(cache, tok_ivl);
+      break;
     case ifc_ebts_this:
       cache_token(cache, tok_this);
       break;

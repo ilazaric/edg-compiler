@@ -5725,7 +5725,16 @@ static void template_for_statement(void)
   sp->end_position = curr_construct_end_position;
 #endif /* EXTRA_SOURCE_POSITIONS_IN_IL */
   db_exit();
-}  /* for_statement */
+}  /* template_for_statement */
+
+static void ivl_statement(void) {
+  ivl_where();
+  cannot_bind_to_curr_construct();
+  check_assertion_str(curr_token == tok_ivl, "ivl_statement: expected `ivl`");
+  (void)get_token();
+  check_assertion_str(curr_token == tok_semicolon, "ivl_statement: expected `;`");
+  (void)get_token();
+}
 
 static void for_statement(void)
 /*
@@ -8066,6 +8075,10 @@ rescan_statement:
     case tok_template:
       /* Template for statement. */
       template_for_statement();
+      break;
+    case tok_ivl:
+      /* ivl statement. */
+      ivl_statement();
       break;
     case tok_if:
       /* If statement. */

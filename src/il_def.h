@@ -1334,6 +1334,7 @@ enum a_token_kind : unsigned short {
   tok_protected,
   tok_public,
   tok_template,
+  tok_ivl,
   tok_this,
   tok_throw,
   tok_try,
@@ -1654,7 +1655,7 @@ EXTERN_CONSTINIT_ARRAY(a_const_char*, token_names, tok_last + 1)
 #endif /* GNU_EXTENSIONS_ALLOWED */
    "::", ".*", "->*", "asm", "catch", "class", "delete", "friend",
    "inline", "new", "operator", "private", "protected", "public",
-   "template", "this", "throw", "try", "virtual", "wchar_t",
+   "template", "ivl", "this", "throw", "try", "virtual", "wchar_t",
    "const_cast", "dynamic_cast", "explicit",
    "export", "export", "export", "import", "module",
    "mutable", "namespace", "reinterpret_cast", "static_cast", "typeid",

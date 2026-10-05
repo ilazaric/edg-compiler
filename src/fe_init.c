@@ -1426,6 +1426,7 @@ Install the keywords in the symbol table.
     enter_keyword((a_token_kind)tok_protected, "protected");
     enter_keyword((a_token_kind)tok_public,    "public");
     enter_keyword((a_token_kind)tok_template,  "template");
+    enter_keyword((a_token_kind)tok_ivl,       "ivl");
     enter_keyword((a_token_kind)tok_this,      "this");
     enter_keyword((a_token_kind)tok_throw,     "throw");
     enter_keyword((a_token_kind)tok_try,       "try");

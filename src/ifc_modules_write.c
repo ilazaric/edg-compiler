@@ -4330,6 +4330,9 @@ a_token_kind for more information about IFC token serialization.
     case tok_template:
       result = ifc_ebts_template;
       break;
+    case tok_ivl:
+      result = ifc_ebts_ivl;
+      break;
     case tok_this:
       result = ifc_ebts_this;
       break;

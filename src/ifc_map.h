@@ -3168,6 +3168,7 @@ enum an_ifc_edg_basic_token_sort : uint32_t {
   ifc_ebts_struct,
   ifc_ebts_switch,
   ifc_ebts_template,
+  ifc_ebts_ivl,
   ifc_ebts_this,
   ifc_ebts_thread_local,
   ifc_ebts_throw,
