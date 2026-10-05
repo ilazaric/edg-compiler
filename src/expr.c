@@ -39,6 +39,8 @@ expr.c -- Expression scanning routines.
 #endif /* MICROSOFT_EXTENSIONS_ALLOWED */
 #include "statements.h"
 
+#include "ivl.h"
+
 /* Conditionally open the "edg" namespace. */
 BEGIN_EDG_NAMESPACE
 
@@ -47605,6 +47607,8 @@ parse) and get_continued_elem (for resuming a suspended parse).
   a_boolean                        non_designator_seen = FALSE;
   a_boolean                        mixed_err_given = FALSE;
 
+  ivl_where();
+
   if (p_continuation != NULL) {
     continuation = *p_continuation;
     *p_continuation = NULL;
@@ -47830,6 +47834,7 @@ done:
     }  /* for */
   }  /* if */
   remove_matching_stop_token(tok_rbrace);
+  fprintf(f_debug, "IVL: len: %d\n", ivl_init_component_length(icp));
   return icp;
 }  /* parse_braced_init_list_full */
 

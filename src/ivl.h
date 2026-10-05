@@ -18,5 +18,6 @@ struct ivl_deindenter {
   ivl_where_impl(__func__); \
   ivl_deindenter _(__func__)
 
+int ivl_init_component_length(const struct an_init_component* ptr);
 
 #endif /* ifndef IVL_H */
