@@ -25,6 +25,7 @@ on:
   push:
     branches:
       - main
+      - ilazaric/noreturn
   pull_request:
 
 jobs:
