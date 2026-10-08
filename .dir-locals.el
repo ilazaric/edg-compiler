@@ -1,1 +1,2 @@
-((nil . ((mode . display-fill-column-indicator))))
+((nil . ((fill-column . 80)
+         (mode . display-fill-column-indicator))))
